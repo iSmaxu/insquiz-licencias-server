@@ -1,0 +1,28 @@
+{
+  "licenses": [
+    {
+      "key": "CJDXCHGDHE",
+      "clientName": "Cliente Demo",
+      "maxDevices": 1,
+      "devices": [],
+      "revoked": false,
+      "createdAt": "2025-10-26T15:02:36.953Z"
+    },
+    {
+      "key": "3-41G-HI30",
+      "clientName": "Juan Perez",
+      "maxDevices": 1,
+      "devices": [],
+      "revoked": false,
+      "createdAt": "2025-10-26T16:24:28.660Z"
+    },
+    {
+      "key": "NGTCZMNFNC",
+      "clientName": "Juan Perez",
+      "maxDevices": 1,
+      "devices": [],
+      "revoked": false,
+      "createdAt": "2025-10-26T16:28:16.499Z"
+    }
+  ]
+}
