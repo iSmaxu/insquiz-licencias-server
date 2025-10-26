@@ -27,13 +27,31 @@ function writeDB(data) {
 
 // Crear licencia
 app.post('/create-license', (req, res) => {
-  const { clientName } = req.body;
-  const db = readDB();
-  const key = nanoid(16);
-  db.licenses.push({ clientName, key, created: new Date().toISOString() });
-  writeDB(db);
-  res.json({ success: true, key });
+  try {
+    const { clientName } = req.body;
+    if (!clientName) return res.status(400).json({ error: 'clientName requerido' });
+
+    let db = { licenses: [] };
+    if (fs.existsSync(DB_FILE)) {
+      db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    }
+
+    const key = nanoid(16);
+    db.licenses.push({ clientName, key, created: new Date().toISOString() });
+
+    try {
+      fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+    } catch {
+      console.warn('⚠️ No se pudo escribir db.json (entorno de solo lectura)');
+    }
+
+    res.json({ success: true, key });
+  } catch (err) {
+    console.error('❌ Error en /create-license:', err);
+    res.status(500).json({ error: 'Error interno del servidor', details: err.message });
+  }
 });
+
 
 // Verificar licencia
 app.post('/verify-license', (req, res) => {
