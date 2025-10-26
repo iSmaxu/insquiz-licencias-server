@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { nanoid } = require('nanoid');
-const jwt = require('jsonwebtoken');
-const { Low, JSONFile } = require('lowdb');
+const fs = require('fs');
+const path = require('path');
 const dotenv = require('dotenv');
+const { nanoid } = require('nanoid');
 
 dotenv.config();
 
@@ -12,35 +12,38 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// Configurar base de datos local (lowdb)
-const adapter = new JSONFile('db.json');
-const db = new Low(adapter);
+const DB_FILE = path.join(__dirname, 'db.json');
 
-async function initDB() {
-  await db.read();
-  if (!db.data) db.data = { licenses: [] };
+// Leer base de datos
+function readDB() {
+  if (!fs.existsSync(DB_FILE)) return { licenses: [] };
+  return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
 }
-initDB();
 
-// Endpoint para crear licencia
-app.post('/create-license', async (req, res) => {
-  await db.read();
+// Escribir base de datos
+function writeDB(data) {
+  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+}
+
+// Crear licencia
+app.post('/create-license', (req, res) => {
   const { clientName } = req.body;
+  const db = readDB();
   const key = nanoid(16);
-  db.data.licenses.push({ clientName, key, created: new Date().toISOString() });
-  await db.write();
+  db.licenses.push({ clientName, key, created: new Date().toISOString() });
+  writeDB(db);
   res.json({ success: true, key });
 });
 
-// Endpoint para validar licencia
-app.post('/verify-license', async (req, res) => {
-  await db.read();
+// Verificar licencia
+app.post('/verify-license', (req, res) => {
   const { key } = req.body;
-  const found = db.data.licenses.find((l) => l.key === key);
+  const db = readDB();
+  const found = db.licenses.find((l) => l.key === key);
   res.json({ valid: !!found });
 });
 
-// Ruta raíz
+// Ruta principal
 app.get('/', (req, res) => {
   res.send('Servidor de licencias activo ✅');
 });
