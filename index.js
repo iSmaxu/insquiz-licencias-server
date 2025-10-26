@@ -14,15 +14,15 @@ app.use(cors());
 
 const DB_FILE = path.join(__dirname, 'db.json');
 
-// Leer base de datos
+// --- Base de datos temporal en memoria (sin archivos)
+let memoryDB = { licenses: [] };
+
 function readDB() {
-  if (!fs.existsSync(DB_FILE)) return { licenses: [] };
-  return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+  return memoryDB;
 }
 
-// Escribir base de datos
 function writeDB(data) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+  memoryDB = data;
 }
 
 // Crear licencia
